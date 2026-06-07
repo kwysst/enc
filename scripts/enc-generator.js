@@ -1,3 +1,5 @@
+import { toast } from '/web-utils/utils-scripts/components/Toast/Toast.js';
+
 // Генератор зашифрованных файлов
 const ConfigGenerator = (() => {
     function downloadFile(filename, content) {
@@ -71,19 +73,6 @@ const ConfigGenerator = (() => {
         }
     }
     
-    function showStatus(message, type, timeout = null) {
-        const statusDiv = document.getElementById('generatorStatus');
-        if (statusDiv) {
-            statusDiv.className = `${type}-message`;
-            statusDiv.textContent = message;
-            statusDiv.style.display = 'block';
-            
-            timeout && setTimeout(() => {
-                statusDiv.style.display = 'none';
-            }, timeout);
-        }
-    }
-    
     function init() {
         const passphraseInput = document.getElementById('generatorPassphrase');
         const configTextarea = document.getElementById('generatorConfigJson');
@@ -99,9 +88,9 @@ const ConfigGenerator = (() => {
             loadExampleBtn.addEventListener('click', () => {
                 if (typeof ENC_TEMPLATE !== 'undefined') {
                     configTextarea.value = JSON.stringify(ENC_TEMPLATE, null, 2);
-                    showStatus('Пример загружен', 'success');
+                    toast.success('Пример загружен');
                 } else {
-                    showStatus('Шаблон не найден', 'error');
+                    toast.error('Шаблон не найден');
                 }
             });
         }
@@ -112,12 +101,12 @@ const ConfigGenerator = (() => {
                 const configJson = configTextarea.value;
                 
                 if (!passphrase) {
-                    showStatus('Введите pass-фразу', 'error');
+                    toast.error('Введите pass-фразу');
                     return;
                 }
                 
                 if (!configJson) {
-                    showStatus('Введите конфигурацию в формате JSON', 'error');
+                    toast.error('Введите конфигурацию в формате JSON');
                     return;
                 }
                 
@@ -126,11 +115,11 @@ const ConfigGenerator = (() => {
                     generateBtn.disabled = true;
                     generateBtn.textContent = 'Шифрование...';
                     
-                    const result = await createEncryptedConfig(passphrase, config);
+                    await createEncryptedConfig(passphrase, config);
                     
-                    showStatus(`Файл сохранен!`, 'success');
+                    toast.success('Файл сохранен!');
                 } catch (error) {
-                    showStatus(`Ошибка: ${error.message}`, 'error');
+                    toast.error(`Ошибка: ${error.message}`);
                 } finally {
                     generateBtn.disabled = false;
                     generateBtn.textContent = 'Создать .enc файл';

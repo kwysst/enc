@@ -1,4 +1,5 @@
-// enc-auth.js
+import { toast } from '/web-utils/utils-scripts/components/Toast/Toast.js';
+
 (function(global) {
     class EncAuth {
         constructor(options = {}) {
@@ -29,11 +30,12 @@
                 this.currentConfig = config;
                 
                 this.showAppContent();
+                toast.success('Вход выполнен успешно');
                 
                 if (this.onLogin) await this.onLogin(config);
                 return { success: true, config };
             } catch (error) {
-                this.showError(error.message);
+                toast.error(error.message);
                 return { success: false, error: error.message };
             }
         }
@@ -46,16 +48,9 @@
             const passInput = document.getElementById('encPassphrase');
             if (passInput) passInput.value = '';
             
+            toast.message('Вы вышли из системы');
+            
             if (this.onLogout) await this.onLogout();
-        }
-        
-        showError(message) {
-            const errorDiv = document.getElementById('encError');
-            if (errorDiv) {
-                errorDiv.textContent = message;
-                errorDiv.style.display = 'block';
-                setTimeout(() => errorDiv.style.display = 'none', 3000);
-            }
         }
         
         showLoginForm() {
@@ -84,7 +79,6 @@
                         </div>
                         <input id="encPassphrase" class="enc-input" placeholder="Pass-фраза">
                         <button id="encLoginBtn" class="enc-btn">Войти</button>
-                        <div id="encError" class="enc-error" style="display:none"></div>
                     </div>
                 </div>
                 
@@ -104,7 +98,7 @@
             document.getElementById('encLoginBtn')?.addEventListener('click', async () => {
                 const passphrase = document.getElementById('encPassphrase').value;
                 if (!passphrase) {
-                    this.showError('Введите pass-фразу');
+                    toast.error('Введите pass-фразу');
                     return;
                 }
                 
